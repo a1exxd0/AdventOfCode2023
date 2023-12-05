@@ -6,6 +6,7 @@ using std::endl;
 using std::cin;
 using std::atoi;
 using std::find;
+using std::string;
 
 int main(){
     std::ifstream infile("Day1.txt");
