@@ -7,8 +7,6 @@ using std::cin;
 using std::atoi;
 using std::find;
 
-
-
 int main(){
     std::ifstream infile("Day1.txt");
     char nums[10] = {'0', '1', '2', '3', '4', '5', '6', '7', '8', '9'};
@@ -24,6 +22,8 @@ int main(){
     {
         num[0] = '-';
         num[1] = '-';
+        indexes[0] = 1000;
+        indexes[1] = 0;
         for (int i = 0; i < line.size(); i++){
             if (find(nums, end, line.at(i)) != end){
                 if(num[0] == '-'){
@@ -36,29 +36,45 @@ int main(){
                 }
             }
         }
+        
         for(int j = 0; j < 10; j++){
             if (line.find(numsString[j]) != std::string::npos){
-                if (num[0] == '-'){
+                cout << "indexes: "<< indexes[0] << " " << indexes[1] << endl;
+                cout << "found "<< numsString[j] << " at " << line.find(numsString[j]) << endl;
+                if (line.find(numsString[j]) < indexes[0]){
+                    if (num[1] == '-'&& indexes[0] != 1000){
+                        num[1] = num[0];
+                        indexes[1] = indexes[0];
+                    }
                     num[0] = j + 48;
                     indexes[0] = line.find(numsString[j]);
                 }
-                if (num[1] == '-'){
+                else if (line.find(numsString[j]) > indexes[1]){
                     num[1] = j + 48;
                     indexes[1] = line.find(numsString[j]);
                 }
-                else{
-                    if (line.find(numsString[j]) <= indexes[0]){
-                        num[0] = j + 48;
-                        indexes[0] = line.find(numsString[j]);
+            }
+        }
+        for(int j = 0; j < 10; j++){
+            if (line.find(numsString[j]) != std::string::npos){
+                cout << "indexes: "<< indexes[0] << " " << indexes[1] << endl;
+                cout << "found "<< numsString[j] << " at " << line.rfind(numsString[j]) << endl;
+                if (line.rfind(numsString[j]) < indexes[0]){
+                    if (num[1] == '-'&& indexes[0] != 1000){
+                        num[1] = num[0];
+                        indexes[1] = indexes[0];
                     }
-                    else if (line.find(numsString[j]) >= indexes[1]){
-                        num[1] = j + 48;
-                        indexes[1] = line.find(numsString[j]);
-                    }
+                    num[0] = j + 48;
+                    indexes[0] = line.rfind(numsString[j]);
+                }
+                else if (line.rfind(numsString[j]) > indexes[1]){
+                    num[1] = j + 48;
+                    indexes[1] = line.rfind(numsString[j]);
                 }
             }
         }
-
+        
+        cout << num[0] << " " << num[1] << endl;
         if (num[1] != '-'){
             sum = sum + ((num[0]-48) * 10) + (num[1]-48);
         }
