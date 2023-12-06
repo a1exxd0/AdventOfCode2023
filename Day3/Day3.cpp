@@ -8,7 +8,7 @@ using std::atoi;
 using std::find;
 using std::string;
 
-#define SIZE 10
+#define SIZE 140
 int
 threeDigitConversion(char *num){
     return (num[0] - 48) * 100 + (num[1] - 48) * 10 + (num[2] - 48);
@@ -20,19 +20,18 @@ checkSurroundingsForSymbol(int x, int y, char array[][SIZE]){
     size_t numsSize = sizeof(notSymbols) / sizeof(char);
     char *end = notSymbols + numsSize;
     int iteratorX = -1;
-    int iteratorY = -1;
+    int iteratorY;
     while (iteratorX < 2){
+        iteratorY = -1;
         while (iteratorY < 2){
-            try{
+            if (!(x+iteratorX < 0 || y+iteratorY < 0 || x+iteratorX >= SIZE || y+iteratorY >= SIZE)){
                 if (find(notSymbols, end, (array)[x + iteratorX][y + iteratorY]) == end){
-                    if(iteratorX != 0 && iteratorY != 0){
-                        cout << "found not symbol" << endl;
+                    if(iteratorX != 0 || iteratorY != 0){
+                        // cout << "found not symbol" << endl;
+                        // cout << (array)[x + iteratorX][y + iteratorY] << endl;
                         return true;
                     }
                 }
-            }
-            catch(...){
-                //do nothing
             }
             iteratorY++;
         }
@@ -42,8 +41,7 @@ checkSurroundingsForSymbol(int x, int y, char array[][SIZE]){
 }
 
 int main(){
-    /*12 red 13 green 14 blue max*/
-    std::ifstream infile("Day3Test.txt");
+    std::ifstream infile("Day3.txt");
     char nums[10] = {'0', '1', '2', '3', '4', '5', '6', '7', '8', '9'};
     size_t numsSize = sizeof(nums) / sizeof(char);
     char *end = nums + numsSize;
@@ -64,12 +62,15 @@ int main(){
             char partNum[3] = {'0', '0', '0'};
             if (find(nums, end, (file)[i][j]) != end){
                 foundFlag += checkSurroundingsForSymbol(i, j, file) ? 1 : 0;
+                //cout <<"one"<< foundFlag << endl;
                 if(find(nums, end, (file)[i][j+1]) != end){
                     j++;
                     foundFlag += checkSurroundingsForSymbol(i, j, file) ? 1 : 0;
+                    //cout << "two " <<foundFlag << endl;
                     if(find(nums, end, (file)[i][j+1]) != end){
                         j++;
                         foundFlag += checkSurroundingsForSymbol(i, j, file) ? 1 : 0;
+                        //cout << "three " <<foundFlag << endl;
                         partNum[0] = (file)[i][j-2];
                         partNum[1] = (file)[i][j-1];
                         partNum[2] = (file)[i][j];
@@ -84,7 +85,7 @@ int main(){
             }
             if (foundFlag != 0){
                 sum += threeDigitConversion(partNum);
-                cout << threeDigitConversion(partNum) << endl;
+                //cout << threeDigitConversion(partNum) << endl;
             }
         }
     }
