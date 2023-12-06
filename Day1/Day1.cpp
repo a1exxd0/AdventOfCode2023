@@ -9,7 +9,7 @@ using std::find;
 using std::string;
 
 int main(){
-    std::ifstream infile("Day1.txt");
+    std::ifstream infile("p1file.txt");
     char nums[10] = {'0', '1', '2', '3', '4', '5', '6', '7', '8', '9'};
     size_t numsSize = sizeof(nums) / sizeof(char);
     char *end = nums + numsSize;
