@@ -31,7 +31,7 @@ main(){
     string filename = FILE;
     filename += ".txt";
     std::ifstream infile(filename);
-    char nums[11] = {'0', '1', '2', '3', '4', '5', '6', '7', '8', '9'};
+    char nums[10] = {'0', '1', '2', '3', '4', '5', '6', '7', '8', '9'};
     size_t numsSize = sizeof(nums) / sizeof(char);
     char *end = nums + numsSize;
 
