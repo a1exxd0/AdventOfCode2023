@@ -88,6 +88,16 @@ traceSourceOutput(long long source, vector<Mappable> mappable){
     return source;
 }
 
+long long
+minimum(Seeds seed){
+    long long min = -1;
+    for(int i = 0; i < ; i++){
+        if(min == -1 || seed.seeds[i] < min){
+            min = seed.seeds[i];
+        }
+    }
+}
+
 int 
 main(){
     string filename = FILE;
@@ -144,6 +154,7 @@ main(){
         }
         printf("%lld\n", seed.seeds[i]);
     }
+    
     
     return 0;
 }
