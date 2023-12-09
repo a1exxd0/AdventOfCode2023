@@ -12,8 +12,14 @@ using std::string;
 using std::vector;
 
 #define FILE "Day5"
+#define UPPERBOUND mappable.at(i).container[1] + mappable.at(i).container[2] - 1 //leq
+#define LOWERBOUND mappable.at(i).container[1] //leq
+typedef struct SeedRange{
+    vector<long long int> seedsVector;
+} SeedRange;
+
 typedef struct Seeds{
-    long long int seeds[20];
+    vector<long long int> seedsVector;
 } Seeds;
 
 typedef struct Mappable{
@@ -31,9 +37,9 @@ twelveDigConv(char *num){
             (num[10] - 48LL) * 10LL + (num[11] - 48LL);
 }
 
-Seeds
-setSeeds(string line){
-    Seeds result;
+SeedRange
+setSeedRange(string line){
+    SeedRange result;
     int counter = 0;
     char num[12];
 
@@ -41,7 +47,7 @@ setSeeds(string line){
 
     for (int i = 0; i < line.length(); i++){
         if (line.at(i) == ' '){
-            result.seeds[counter++] = twelveDigConv(num);
+            result.seedsVector.push_back(twelveDigConv(num));
             for(int j = 0; j < 12; j++){ num[j] = '0'; }
         } 
         else{
@@ -49,7 +55,66 @@ setSeeds(string line){
             num[11] = line.at(i);
         }
     }
-    result.seeds[counter++] = twelveDigConv(num);
+    result.seedsVector.push_back(twelveDigConv(num));
+    return result;
+}
+
+Seeds
+setSeeds(SeedRange seedRange){
+    Seeds result;
+
+    for(int i = 0; i < seedRange.seedsVector.size(); i=i+2){
+        cout << "new pair" << endl;
+        for (int j = 0; j < seedRange.seedsVector.at(i+1); j++){
+            result.seedsVector.push_back(seedRange.seedsVector.at(i) + j);
+        }
+    }
+    
+    return result;
+}
+
+SeedRange
+traceSourceRangeOutput(SeedRange source, vector<Mappable> mappable){
+    SeedRange result;
+    for(int i = 0; i < source.seedsVector.size(); i=i+2){
+        long long startStep = source.seedsVector.at(i);
+        while(startStep <= source.seedsVector.at(i+1)+source.seedsVector.at(i)-1){
+            bool startStepFound = false;
+            long long leastSeed = -1;
+            for(int j = 0; j < mappable.size(); j++){
+                if(startStep <= UPPERBOUND && startStep >= LOWERBOUND){
+                    result.seedsVector.push_back(startStep);
+                    result.seedsVector.push_back(UPPERBOUND - startStep + 1);
+                    startStep = UPPERBOUND + 1;
+                    startStepFound = true;
+                    break;
+                }
+            }
+            
+            bool smallestGreaterThan = false;
+            for (int j = 0; j < mappable.size(); j++){
+                if (mappable.at(j).container[1] > startStep){
+                    if (mappable.at(j).container[1] < leastSeed || leastSeed == -1){
+                        leastSeed = mappable.at(j).container[1];
+                        break;
+                    }
+                }
+            }
+
+            if (!startStepFound){
+                result.seedsVector.push_back(startStep);
+                result.seedsVector.push_back(leastSeed - startStep);
+                startStep = leastSeed;
+            }
+
+            if(leastSeed == -1){
+                result.seedsVector.push_back(startStep);
+                result.seedsVector.push_back(source.seedsVector.at(i+1));
+                startStep = startStep + source.seedsVector.at(i+1);
+            }
+        }
+        printf("Range: %lld - %lld\n", result.seedsVector.at(i), result.seedsVector.at(i+1));
+    }
     return result;
 }
 
@@ -77,25 +142,14 @@ setMappable(string line){
 }
 
 long long
-traceSourceOutput(long long source, vector<Mappable> mappable){
-    for(int i = 0; i < mappable.size(); i++){
-        long long upperBound = mappable.at(i).container[1] + mappable.at(i).container[2] - 1;
-        long long lowerBound = mappable.at(i).container[1];
-        if(lowerBound <= source && source <= upperBound){
-            return (mappable.at(i).container[0] - mappable.at(i).container[1]) + source;
-        }
-    }
-    return source;
-}
-
-long long
-minimum(Seeds seed){
+minimum(SeedRange seed){
     long long min = -1;
-    for(int i = 0; i < ; i++){
-        if(min == -1 || seed.seeds[i] < min){
-            min = seed.seeds[i];
+    for(long long int i = 0; i < seed.seedsVector.size(); i=i+2){
+        if(min == -1 || seed.seedsVector.at(i) < min){
+            min = seed.seedsVector.at(i);
         }
     }
+    return min;
 }
 
 int 
@@ -107,15 +161,10 @@ main(){
     size_t numsSize = sizeof(nums) / sizeof(char);
     char *end = nums + numsSize;
 
-    long int seeds[20];
-    for(int i = 0; i < 20; i++){
-        seeds[i] = 0;
-    }
-    int seedCount = 0;
     std::string line; getline( infile, line );
     int indexColon = line.find(':') + 1;
     line.replace(line.find("seeds: "), 7, "");
-    Seeds seed = setSeeds(line);
+    SeedRange seedRange = setSeedRange(line);
     
     /*seed -> soil -> fertiliser -> water -> light -> temperature -> humidity -> location*/
     vector<Mappable> seedToSoil;
@@ -136,7 +185,6 @@ main(){
         if (line.find(":") != std::string::npos){
             container_counter++;
             counter = 0;
-            cout << "found new" << endl;
         }
         else{
             if (line.size() == 0){
@@ -147,14 +195,13 @@ main(){
             }
         }
     }
-    
-    for (int i = 0; i < 20; i++){
-        for (int j = 0; j < 7; j++){
-            seed.seeds[i]  = traceSourceOutput(seed.seeds[i], mappables[j]);
-        }
-        printf("%lld\n", seed.seeds[i]);
+
+    for (int j = 0; j < 7; j++){
+        seedRange = traceSourceRangeOutput(seedRange, mappables[j]);
     }
-    
+    cout << "seeds traced" << endl;
+    long long min = minimum(seedRange);
+    printf("Minimum: %lld\n", min);
     
     return 0;
 }
